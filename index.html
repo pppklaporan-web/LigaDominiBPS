@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domino Liga Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-16">
+
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
+        <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🀄</span>
+                <h1 class="text-lg font-bold tracking-wide text-amber-400">Liga Domino 6 Tim</h1>
+            </div>
+            <button onclick="resetData()" class="text-xs bg-red-600/80 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition font-medium shadow">
+                Reset Data
+            </button>
+        </div>
+        <!-- Tab Navigation -->
+        <div class="max-w-md mx-auto px-4 flex border-t border-slate-700/50">
+            <button onclick="switchTab('standings')" id="btn-standings" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-amber-400 text-amber-400 transition">
+                🏆 Klasemen
+            </button>
+            <button onclick="switchTab('matches')" id="btn-matches" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 transition">
+                📅 Pertandingan
+            </button>
+            <button onclick="switchTab('teams')" id="btn-teams" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 transition">
+                ⚙️ Tim
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-6 space-y-6">
+
+        <!-- TAB 1: STANDINGS -->
+        <section id="tab-standings" class="space-y-4">
+            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="font-bold text-base text-amber-300">Klasemen Sementara</h2>
+                    <span class="text-[11px] text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-700">Aturan: M=2, S=1, K=0, Ap=+1</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400">
+                                <th class="py-2.5 px-1 text-center w-8">#</th>
+                                <th class="py-2.5 px-2">Tim</th>
+                                <th class="py-2.5 px-1 text-center" title="Main">Ma</th>
+                                <th class="py-2.5 px-1 text-center" title="Menang">M</th>
+                                <th class="py-2.5 px-1 text-center" title="Seri">S</th>
+                                <th class="py-2.5 px-1 text-center" title="Kalah">K</th>
+                                <th class="py-2.5 px-1 text-center text-amber-400" title="Apolo">Ap</th>
+                                <th class="py-2.5 px-2 text-center font-bold text-amber-400" title="Poin">P</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standings-body">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MATCHES (Flexible Scheduling) -->
+        <section id="tab-matches" class="space-y-4 hidden">
+            <!-- Add Match Form Card -->
+            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-3">
+                <h3 class="font-bold text-sm text-amber-300 flex items-center justify-between">
+                    <span>➕ Tambah Pertandingan Baru</span>
+                </h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Tim Tuan Rumah / Pos 1</label>
+                        <select id="new-home-team" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
+                            <!-- Options filled via JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Tim Tamu / Pos 2</label>
+                        <select id="new-away-team" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
+                            <!-- Options filled via JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Skor Rumah & Apolo</label>
+                        <div class="flex space-x-1">
+                            <input type="number" id="new-home-score" placeholder="Skor" min="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none">
+                            <input type="number" id="new-home-apolo" placeholder="Ap" min="0" value="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none" title="Jumlah Apolo">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-400 mb-1 block">Skor Tamu & Apolo</label>
+                        <div class="flex space-x-1">
+                            <input type="number" id="new-away-score" placeholder="Skor" min="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none">
+                            <input type="number" id="new-away-apolo" placeholder="Ap" min="0" value="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none" title="Jumlah Apolo">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="addNewMatch()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow mt-2">
+                    Simpan & Tambah Jadwal
+                </button>
+            </div>
+
+            <!-- Matches List -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-sm text-slate-300 px-1">Daftar Pertandingan Tersimpan</h3>
+                <div id="matches-list-container" class="space-y-3">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: TEAMS CONFIGURATION -->
+        <section id="tab-teams" class="space-y-4 hidden">
+            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-4">
+                <div>
+                    <h2 class="font-bold text-base text-amber-300 mb-1">Pengaturan Tim Peserta</h2>
+                    <p class="text-xs text-slate-400">Atur nama tim (maksimal 6 tim utama atau sesuaikan kebutuhan).</p>
+                </div>
+                
+                <div id="teams-inputs" class="space-y-2.5">
+                    <!-- Populated via JS -->
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                    <button onclick="addTeam()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-amber-400 font-semibold py-2.5 rounded-xl text-xs transition border border-slate-600">
+                        + Tambah Tim
+                    </button>
+                    <button onclick="saveTeamNames()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">
+                        Simpan Nama Tim
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Initial state
+        let teams = [
+            { id: 1, name: "Tim 1" },
+            { id: 2, name: "Tim 2" },
+            { id: 3, name: "Tim 3" },
+            { id: 4, name: "Tim 4" },
+            { id: 5, name: "Tim 5" },
+            { id: 6, name: "Tim 6" }
+        ];
+
+        // Flexible matches array (empty initially or pre-populated)
+        let matches = [];
+
+        // Load data from localStorage
+        function loadData() {
+            const savedTeams = localStorage.getItem('domino_teams_flex');
+            const savedMatches = localStorage.getItem('domino_matches_flex');
+            if (savedTeams) teams = JSON.parse(savedTeams);
+            if (savedMatches) matches = JSON.parse(savedMatches);
+        }
+
+        function saveData() {
+            localStorage.setItem('domino_teams_flex', JSON.stringify(teams));
+            localStorage.setItem('domino_matches_flex', JSON.stringify(matches));
+        }
+
+        function switchTab(tabId) {
+            ['standings', 'matches', 'teams'].forEach(id => {
+                document.getElementById(`tab-${id}`).classList.add('hidden');
+                document.getElementById(`btn-${id}`).classList.remove('border-amber-400', 'text-amber-400');
+                document.getElementById(`btn-${id}`).classList.add('border-transparent', 'text-slate-400');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabId}`).classList.remove('border-transparent', 'text-slate-400');
+            document.getElementById(`btn-${tabId}`).classList.add('border-amber-400', 'text-amber-400');
+
+            if (tabId === 'standings') renderStandings();
+            if (tabId === 'matches') renderMatchesTab();
+            if (tabId === 'teams') renderTeamsInputs();
+        }
+
+        function calculateStandings() {
+            let stats = teams.map(t => ({
+                id: t.id,
+                name: t.name,
+                played: 0,
+                won: 0,
+                drawn: 0,
+                lost: 0,
+                apolo: 0,
+                points: 0
+            }));
+
+            matches.forEach(m => {
+                let hScore = parseInt(m.homeScore);
+                let aScore = parseInt(m.awayScore);
+                let hAp = parseInt(m.homeApolo) || 0;
+                let aAp = parseInt(m.awayApolo) || 0;
+
+                let hTeam = stats.find(t => t.id === m.homeId);
+                let aTeam = stats.find(t => t.id === m.awayId);
+
+                if (!hTeam || !aTeam || isNaN(hScore) || isNaN(aScore)) return;
+
+                hTeam.played += 1;
+                aTeam.played += 1;
+
+                hTeam.apolo += hAp;
+                aTeam.apolo += aAp;
+
+                if (hScore > aScore) {
+                    hTeam.won += 1;
+                    aTeam.lost += 1;
+                    hTeam.points += 2; // Menang = 2 poin
+                } else if (aScore > hScore) {
+                    aTeam.won += 1;
+                    hTeam.lost += 1;
+                    aTeam.points += 2; // Menang = 2 poin
+                } else {
+                    hTeam.drawn += 1;
+                    aTeam.drawn += 1;
+                    hTeam.points += 1; // Seri = 1 poin
+                    aTeam.points += 1; // Seri = 1 poin
+                }
+
+                // Tambahan poin Apolo (+1 poin per apolo)
+                hTeam.points += hAp;
+                aTeam.points += aAp;
+            });
+
+            // Urutkan berdasarkan Poin tertinggi, lalu Apolo tertinggi, lalu Menang
+            stats.sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                if (b.apolo !== a.apolo) return b.apolo - a.apolo;
+                return b.won - a.won;
+            });
+
+            return stats;
+        }
+
+        function renderStandings() {
+            const stats = calculateStandings();
+            const tbody = document.getElementById('standings-body');
+            tbody.innerHTML = '';
+
+            if (stats.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">Belum ada tim terdaftar.</td></tr>`;
+                return;
+            }
+
+            stats.forEach((st, index) => {
+                let row = document.createElement('tr');
+                row.className = 'border-b border-slate-700/50 hover:bg-slate-700/20 transition';
+                row.innerHTML = `
+                    <td class="py-3 px-1 text-center font-bold text-slate-400">${index + 1}</td>
+                    <td class="py-3 px-2 font-medium text-slate-200 truncate max-w-[110px]">${st.name}</td>
+                    <td class="py-3 px-1 text-center">${st.played}</td>
+                    <td class="py-3 px-1 text-center text-emerald-400">${st.won}</td>
+                    <td class="py-3 px-1 text-center text-sky-400">${st.drawn}</td>
+                    <td class="py-3 px-1 text-center text-rose-400">${st.lost}</td>
+                    <td class="py-3 px-1 text-center text-amber-400 font-semibold">${st.apolo}</td>
+                    <td class="py-3 px-2 text-center font-bold text-amber-400 bg-amber-400/5">${st.points}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderMatchesTab() {
+            const homeSelect = document.getElementById('new-home-team');
+            const awaySelect = document.getElementById('new-away-team');
+            
+            let optionsHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            homeSelect.innerHTML = optionsHTML;
+            awaySelect.innerHTML = optionsHTML;
+            if (teams.length > 1) awaySelect.selectedIndex = 1;
+
+            const container = document.getElementById('matches-list-container');
+            container.innerHTML = '';
+
+            if (matches.length === 0) {
+                container.innerHTML = `<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center text-xs text-slate-400">Belum ada pertandingan yang ditambahkan. Gunakan form di atas untuk membuat jadwal dan mencatat skor!</div>`;
+                return;
+            }
+
+            matches.forEach((m, index) => {
+                const homeTeam = teams.find(t => t.id === m.homeId)?.name || 'Tim Dihapus';
+                const awayTeam = teams.find(t => t.id === m.awayId)?.name || 'Tim Dihapus';
+
+                let card = document.createElement('div');
+                card.className = 'bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-md space-y-3';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-xs text-slate-400 font-medium pb-1 border-b border-slate-700/50">
+                        <span>Partai #${index + 1}</span>
+                        <button onclick="deleteMatch(${m.id})" class="text-rose-400 hover:text-rose-300 font-semibold">Hapus</button>
+                    </div>
+                    <div class="grid grid-cols-5 items-center gap-2">
+                        <div class="col-span-2 text-right font-semibold text-xs truncate text-slate-200">${homeTeam}</div>
+                        <div class="col-span-1 flex justify-center items-center space-x-1">
+                            <span class="w-9 h-9 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-amber-400">${m.homeScore}</span>
+                            <span class="text-slate-500">-</span>
+                            <span class="w-9 h-9 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-amber-400">${m.awayScore}</span>
+                        </div>
+                        <div class="col-span-2 text-left font-semibold text-xs truncate text-slate-200">${awayTeam}</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700/40 text-[11px]">
+                        <div class="flex items-center justify-between bg-slate-900/60 px-2.5 py-1.5 rounded-xl border border-slate-700/50">
+                            <span class="text-amber-400 font-medium">Apolo ${homeTeam}:</span>
+                            <span class="font-bold text-amber-400">${m.homeApolo}</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-900/60 px-2.5 py-1.5 rounded-xl border border-slate-700/50">
+                            <span class="text-amber-400 font-medium">Apolo ${awayTeam}:</span>
+                            <span class="font-bold text-amber-400">${m.awayApolo}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addNewMatch() {
+            const homeId = parseInt(document.getElementById('new-home-team').value);
+            const awayId = parseInt(document.getElementById('new-away-team').value);
+            const hScore = document.getElementById('new-home-score').value;
+            const aScore = document.getElementById('new-away-score').value;
+            const hAp = document.getElementById('new-home-apolo').value;
+            const aAp = document.getElementById('new-away-apolo').value;
+
+            if (homeId === awayId) {
+                alert('Tim tuan rumah dan tim tamu tidak boleh sama!');
+                return;
+            }
+            if (hScore === '' || aScore === '') {
+                alert('Mohon masukkan skor pertandingan dengan lengkap!');
+                return;
+            }
+
+            const newMatch = {
+                id: Date.now(),
+                homeId: homeId,
+                awayId: awayId,
+                homeScore: parseInt(hScore),
+                awayScore: parseInt(aScore),
+                homeApolo: hAp === '' ? 0 : parseInt(hAp),
+                awayApolo: aAp === '' ? 0 : parseInt(aAp)
+            };
+
+            matches.push(newMatch);
+            saveData();
+            renderMatchesTab();
+
+            // Reset score inputs
+            document.getElementById('new-home-score').value = '';
+            document.getElementById('new-away-score').value = '';
+            document.getElementById('new-home-apolo').value = '0';
+            document.getElementById('new-away-apolo').value = '0';
+        }
+
+        function deleteMatch(matchId) {
+            matches = matches.filter(m => m.id !== matchId);
+            saveData();
+            renderMatchesTab();
+        }
+
+        function renderTeamsInputs() {
+            const container = document.getElementById('teams-inputs');
+            container.innerHTML = '';
+
+            teams.forEach((t, index) => {
+                let div = document.createElement('div');
+                div.className = 'flex items-center space-x-2';
+                div.innerHTML = `
+                    <span class="text-xs text-slate-400 w-12 font-medium">Tim ${index + 1}</span>
+                    <input type="text" id="team-name-${t.id}" value="${t.name}" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
+                    <button onclick="removeTeam(${t.id})" class="text-xs bg-red-600/20 hover:bg-red-600/40 text-rose-400 px-3 py-2 rounded-xl transition font-medium">Hapus</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addTeam() {
+            const newId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
+            teams.push({ id: newId, name: `Tim ${teams.length + 1}` });
+            renderTeamsInputs();
+        }
+
+        function removeTeam(teamId) {
+            if (teams.length <= 2) {
+                alert('Jumlah tim minimal harus 2.');
+                return;
+            }
+            teams = teams.filter(t => t.id !== teamId);
+            renderTeamsInputs();
+        }
+
+        function saveTeamNames() {
+            teams.forEach(t => {
+                const input = document.getElementById(`team-name-${t.id}`);
+                if (input && input.value.trim() !== '') {
+                    t.name = input.value.trim();
+                }
+            });
+            saveData();
+            switchTab('standings');
+        }
+
+        function resetData() {
+            if (confirm('Yakin ingin mereset seluruh data tim dan pertandingan?')) {
+                localStorage.removeItem('domino_teams_flex');
+                localStorage.removeItem('domino_matches_flex');
+                location.reload();
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            loadData();
+            renderStandings();
+        };
+    </script>
+</body>
+</html>
