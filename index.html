@@ -1,453 +1,717 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Domino Liga Manager - Realtime</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body { font-family: 'Inter', sans-serif; }
+      body {
+        font-family: "Inter", sans-serif;
+      }
     </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-20">
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
-        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <span class="text-2xl">🀄</span>
-                <div>
-                    <h1 class="text-base font-bold tracking-wide text-amber-400">Liga Domino 6 Tim</h1>
-                    <div class="flex items-center gap-2">
-                        <p id="sync-status" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Menghubungkan...
-                        </p>
-                        <span id="role-badge" class="text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Publik</span>
-                    </div>
-                </div>
+  </head>
+  <body class="bg-slate-900 text-slate-100 min-h-screen pb-20">
+    <header
+      class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md"
+    >
+      <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">🀄</span>
+          <div>
+            <h1 class="text-base font-bold tracking-wide text-amber-400">
+              Liga Domino 6 Tim
+            </h1>
+            <div class="flex items-center gap-2">
+              <p
+                id="sync-status"
+                class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
+                ></span>
+                Menghubungkan...
+              </p>
+              <span
+                id="role-badge"
+                class="text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider"
+                >Publik</span
+              >
             </div>
-            <div class="flex items-center space-x-1.5">
-                <button onclick="shareLink()" class="text-xs bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow">
-                    🔗 Bagikan
-                </button>
-                <button id="auth-btn" onclick="handleAuthAction()" class="text-xs bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 px-2.5 py-1.5 rounded-lg transition font-medium shadow">
-                    🔑 Login Admin
-                </button>
-            </div>
+          </div>
         </div>
-        <!-- Tab Navigation -->
-        <div class="max-w-md mx-auto px-4 flex border-t border-slate-700/50">
-            <button onclick="switchTab('standings')" id="btn-standings" class="flex-1 py-3 text-center text-xs font-semibold border-b-2 border-amber-400 text-amber-400 transition">
-                🏆 Klasemen
-            </button>
-            <button onclick="switchTab('matches')" id="btn-matches" class="flex-1 py-3 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 transition">
-                📅 Pertandingan
-            </button>
-            <button onclick="switchTab('teams')" id="btn-teams" class="flex-1 py-3 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 transition hidden-admin">
-                ⚙️ Pengaturan Tim
-            </button>
+        <div class="flex items-center space-x-1.5">
+          <button
+            onclick="shareLink()"
+            class="text-xs bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow"
+          >
+            🔗 Bagikan
+          </button>
+          <button
+            id="auth-btn"
+            onclick="handleAuthAction()"
+            class="text-xs bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 px-2.5 py-1.5 rounded-lg transition font-medium shadow"
+          >
+            🔑 Login Admin
+          </button>
         </div>
+      </div>
+      <!-- Tab Navigation -->
+      <div
+        class="max-w-md mx-auto px-4 flex border-t border-slate-700/50 overflow-x-auto"
+      >
+        <button
+          onclick="switchTab('standings')"
+          id="btn-standings"
+          class="flex-1 py-3 px-2 text-center text-xs font-semibold border-b-2 border-amber-400 text-amber-400 transition whitespace-nowrap"
+        >
+          🏆 Klasemen
+        </button>
+        <button
+          onclick="switchTab('matrix')"
+          id="btn-matrix"
+          class="flex-1 py-3 px-2 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 transition whitespace-nowrap"
+        >
+          📊 Bagan
+        </button>
+        <button
+          onclick="switchTab('matches')"
+          id="btn-matches"
+          class="flex-1 py-3 px-2 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 transition whitespace-nowrap"
+        >
+          📅 Jadwal
+        </button>
+        <button
+          onclick="switchTab('teams')"
+          id="btn-teams"
+          class="flex-1 py-3 px-2 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 transition whitespace-nowrap hidden-admin"
+        >
+          ⚙️ Tim
+        </button>
+      </div>
     </header>
 
     <main class="max-w-md mx-auto px-4 py-5 space-y-5">
-        <!-- TAB 1: STANDINGS -->
-        <section id="tab-standings" class="space-y-4">
-            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="font-bold text-sm text-amber-300">Klasemen Sementara Real-Time</h2>
-                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-700">M=2, S=1, K=0, Ap=+1</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-700 text-slate-400">
-                                <th class="py-2.5 px-1 text-center w-7">#</th>
-                                <th class="py-2.5 px-2">Tim</th>
-                                <th class="py-2.5 px-1 text-center" title="Main">Ma</th>
-                                <th class="py-2.5 px-1 text-center" title="Menang">M</th>
-                                <th class="py-2.5 px-1 text-center" title="Seri">S</th>
-                                <th class="py-2.5 px-1 text-center" title="Kalah">K</th>
-                                <th class="py-2.5 px-1 text-center text-amber-400" title="Apolo">Ap</th>
-                                <th class="py-2.5 px-2 text-center font-bold text-amber-400" title="Poin">P</th>
-                            </tr>
-                        </thead>
-                        <tbody id="standings-body">
-                            <tr><td colspan="8" class="text-center py-6 text-slate-500">Memuat data klasemen...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-[11px] text-slate-400 space-y-1">
-                <p class="font-semibold text-slate-300">ℹ️ Keterangan Sistem Poin:</p>
-                <ul class="list-disc list-inside space-y-0.5">
-                    <li>Menang: <span class="text-amber-400 font-bold">+2 Poin</span></li>
-                    <li>Seri / Imbang: <span class="text-amber-400 font-bold">+1 Poin</span></li>
-                    <li>Kalah: <span class="text-amber-400 font-bold">0 Poin</span></li>
-                    <li>Apolo: <span class="text-amber-400 font-bold">+1 Poin tambahan</span> per apolo</li>
-                </ul>
-            </div>
-        </section>
+      <!-- TAB 1: STANDINGS -->
+      <section id="tab-standings" class="space-y-4">
+        <div
+          class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700"
+        >
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-sm text-amber-300">
+              Klasemen Sementara Real-Time
+            </h2>
+            <span
+              class="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-700"
+              >M=2, S=1, K=0, Ap=+1</span
+            >
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-slate-700 text-slate-400">
+                  <th class="py-2.5 px-1 text-center w-7">#</th>
+                  <th class="py-2.5 px-2">Tim</th>
+                  <th class="py-2.5 px-1 text-center" title="Main">Ma</th>
+                  <th class="py-2.5 px-1 text-center" title="Menang">M</th>
+                  <th class="py-2.5 px-1 text-center" title="Seri">S</th>
+                  <th class="py-2.5 px-1 text-center" title="Kalah">K</th>
+                  <th
+                    class="py-2.5 px-1 text-center text-amber-400"
+                    title="Apolo"
+                  >
+                    Ap
+                  </th>
+                  <th
+                    class="py-2.5 px-2 text-center font-bold text-amber-400"
+                    title="Poin"
+                  >
+                    P
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="standings-body">
+                <tr>
+                  <td colspan="8" class="text-center py-6 text-slate-500">
+                    Memuat data klasemen...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-        <!-- TAB 2: MATCHES (Flexible Scheduling) -->
-        <section id="tab-matches" class="space-y-4 hidden">
-            <!-- Add Match Form Card (Admin Only) -->
-            <div id="admin-match-form" class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-3 hidden-admin">
-                <h3 class="font-bold text-xs text-amber-300 uppercase tracking-wide">
-                    ➕ Catat / Tambah Pertandingan Baru (Admin)
-                </h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Tim Tuan Rumah / Pos 1</label>
-                        <select id="new-home-team" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Tim Tamu / Pos 2</label>
-                        <select id="new-away-team" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Skor Rumah & Apolo</label>
-                        <div class="flex space-x-1">
-                            <input type="number" id="new-home-score" placeholder="Skor" min="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none">
-                            <input type="number" id="new-home-apolo" placeholder="Ap" min="0" value="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none" title="Jumlah Apolo">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-slate-400 mb-1 block">Skor Tamu & Apolo</label>
-                        <div class="flex space-x-1">
-                            <input type="number" id="new-away-score" placeholder="Skor" min="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none">
-                            <input type="number" id="new-away-apolo" placeholder="Ap" min="0" value="0" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none" title="Jumlah Apolo">
-                        </div>
-                    </div>
-                </div>
-                <button onclick="addNewMatch()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow mt-1">
-                    Simpan & Update Real-Time
-                </button>
-            </div>
+        <div
+          class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-[11px] text-slate-400 space-y-1"
+        >
+          <p class="font-semibold text-slate-300">ℹ️ Keterangan Sistem Poin:</p>
+          <ul class="list-disc list-inside space-y-0.5">
+            <li>
+              Menang: <span class="text-amber-400 font-bold">+2 Poin</span>
+            </li>
+            <li>
+              Seri / Imbang:
+              <span class="text-amber-400 font-bold">+1 Poin</span>
+            </li>
+            <li>Kalah: <span class="text-amber-400 font-bold">0 Poin</span></li>
+            <li>
+              Apolo:
+              <span class="text-amber-400 font-bold">+1 Poin tambahan</span> per
+              apolo
+            </li>
+          </ul>
+        </div>
+      </section>
 
-            <!-- Matches List -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-center px-1">
-                    <h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">Daftar Pertandingan</h3>
-                    <button onclick="resetDataButton()" id="reset-btn" class="text-[10px] text-rose-400 hover:underline hidden-admin">Reset Data Liga</button>
-                </div>
-                <div id="matches-list-container" class="space-y-3">
-                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center text-xs text-slate-400">Memuat data pertandingan...</div>
-                </div>
-            </div>
-        </section>
+      <!-- TAB 2: MATRIX / BAGAN -->
+      <section id="tab-matrix" class="space-y-4 hidden">
+        <div
+          class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-3"
+        >
+          <div>
+            <h2 class="font-bold text-sm text-amber-300 mb-1">
+              Bagan / Matriks Pertemuan Tim
+            </h2>
+            <p class="text-xs text-slate-400">
+              Hasil skor head-to-head antar peserta liga.
+            </p>
+          </div>
+          <div class="overflow-x-auto">
+            <table
+              class="w-full text-center text-[11px] border-collapse"
+              id="matrix-table"
+            >
+              <!-- Populated via JS -->
+            </table>
+          </div>
+          <div
+            class="text-[10px] text-slate-400 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50 space-y-1"
+          >
+            <p class="font-semibold text-slate-300">💡 Cara Membaca Bagan:</p>
+            <p>
+              Baris mewakili Tuan Rumah, Kolom mewakili Tim Tamu. Angka
+              menunjukkan skor pertandingan kedua tim.
+            </p>
+          </div>
+        </div>
+      </section>
 
-        <!-- TAB 3: TEAMS CONFIGURATION -->
-        <section id="tab-teams" class="space-y-4 hidden">
-            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-4">
-                <div>
-                    <h2 class="font-bold text-sm text-amber-300 mb-1">Pengaturan Tim Peserta Liga</h2>
-                    <p class="text-xs text-slate-400">Ubah nama tim sesuai peserta liga domino Anda.</p>
-                </div>
-                
-                <div id="teams-inputs" class="space-y-2.5">
-                </div>
-                <div class="flex space-x-2 pt-2">
-                    <button onclick="addTeam()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-amber-400 font-semibold py-2.5 rounded-xl text-xs transition border border-slate-600">
-                        + Tambah Tim
-                    </button>
-                    <button onclick="saveTeamNames()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">
-                        Simpan Nama Tim
-                    </button>
-                </div>
+      <!-- TAB 3: MATCHES (Flexible Scheduling) -->
+      <section id="tab-matches" class="space-y-4 hidden">
+        <!-- Add Match Form Card (Admin Only) -->
+        <div
+          id="admin-match-form"
+          class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-3 hidden-admin"
+        >
+          <h3 class="font-bold text-xs text-amber-300 uppercase tracking-wide">
+            ➕ Catat / Tambah Pertandingan Baru (Admin)
+          </h3>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 mb-1 block"
+                >Tim Tuan Rumah / Pos 1</label
+              >
+              <select
+                id="new-home-team"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400"
+              ></select>
             </div>
-        </section>
+            <div>
+              <label class="text-[11px] text-slate-400 mb-1 block"
+                >Tim Tamu / Pos 2</label
+              >
+              <select
+                id="new-away-team"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400"
+              ></select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div>
+              <label class="text-[11px] text-slate-400 mb-1 block"
+                >Skor Rumah & Apolo</label
+              >
+              <div class="flex space-x-1">
+                <input
+                  type="number"
+                  id="new-home-score"
+                  placeholder="Skor"
+                  min="0"
+                  class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none"
+                />
+                <input
+                  type="number"
+                  id="new-home-apolo"
+                  placeholder="Ap"
+                  min="0"
+                  value="0"
+                  class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none"
+                  title="Jumlah Apolo"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 mb-1 block"
+                >Skor Tamu & Apolo</label
+              >
+              <div class="flex space-x-1">
+                <input
+                  type="number"
+                  id="new-away-score"
+                  placeholder="Skor"
+                  min="0"
+                  class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none"
+                />
+                <input
+                  type="number"
+                  id="new-away-apolo"
+                  placeholder="Ap"
+                  min="0"
+                  value="0"
+                  class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-center text-amber-400 font-bold focus:outline-none"
+                  title="Jumlah Apolo"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            onclick="addNewMatch()"
+            class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow mt-1"
+          >
+            Simpan & Update Real-Time
+          </button>
+        </div>
+
+        <!-- Matches List -->
+        <div class="space-y-3">
+          <div class="flex justify-between items-center px-1">
+            <h3
+              class="font-bold text-xs text-slate-300 uppercase tracking-wider"
+            >
+              Daftar Pertandingan
+            </h3>
+            <button
+              onclick="resetDataButton()"
+              id="reset-btn"
+              class="text-[10px] text-rose-400 hover:underline hidden-admin"
+            >
+              Reset Data Liga
+            </button>
+          </div>
+          <div id="matches-list-container" class="space-y-3">
+            <div
+              class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center text-xs text-slate-400"
+            >
+              Memuat data pertandingan...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: TEAMS CONFIGURATION -->
+      <section id="tab-teams" class="space-y-4 hidden">
+        <div
+          class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 space-y-4"
+        >
+          <div>
+            <h2 class="font-bold text-sm text-amber-300 mb-1">
+              Pengaturan Tim Peserta Liga
+            </h2>
+            <p class="text-xs text-slate-400">
+              Ubah nama tim sesuai peserta liga domino Anda.
+            </p>
+          </div>
+
+          <div id="teams-inputs" class="space-y-2.5"></div>
+          <div class="flex space-x-2 pt-2">
+            <button
+              onclick="addTeam()"
+              class="flex-1 bg-slate-700 hover:bg-slate-600 text-amber-400 font-semibold py-2.5 rounded-xl text-xs transition border border-slate-600"
+            >
+              + Tambah Tim
+            </button>
+            <button
+              onclick="saveTeamNames()"
+              class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow"
+            >
+              Simpan Nama Tim
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Custom Modal Notification -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full text-center space-y-3 shadow-2xl">
-            <h4 id="modal-title" class="font-bold text-sm text-amber-400">Notifikasi</h4>
-            <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed"></p>
-            <div id="modal-action-container" class="pt-1">
-                <button onclick="closeModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition">
-                    Mengerti
-                </button>
-            </div>
+    <div
+      id="custom-modal"
+      class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full text-center space-y-3 shadow-2xl"
+      >
+        <h4 id="modal-title" class="font-bold text-sm text-amber-400">
+          Notifikasi
+        </h4>
+        <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed"></p>
+        <div id="modal-action-container" class="pt-1">
+          <button
+            onclick="closeModal()"
+            class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition"
+          >
+            Mengerti
+          </button>
         </div>
+      </div>
     </div>
 
     <!-- Firebase SDK Modular Imports -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'domino-league-default-v1';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        let db, auth;
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "domino-league-default-v1";
+      const firebaseConfig =
+        typeof __firebase_config !== "undefined"
+          ? JSON.parse(__firebase_config)
+          : null;
+      const initialAuthToken =
+        typeof __initial_auth_token !== "undefined"
+          ? __initial_auth_token
+          : null;
+      let db, auth;
 
-        let currentTeams = [
-            { id: 1, name: "Tim 1" },
-            { id: 2, name: "Tim 2" },
-            { id: 3, name: "Tim 3" },
-            { id: 4, name: "Tim 4" },
-            { id: 5, name: "Tim 5" },
-            { id: 6, name: "Tim 6" }
-        ];
-        let currentMatches = [];
+      let currentTeams = [
+        { id: 1, name: "Tim 1" },
+        { id: 2, name: "Tim 2" },
+        { id: 3, name: "Tim 3" },
+        { id: 4, name: "Tim 4" },
+        { id: 5, name: "Tim 5" },
+        { id: 6, name: "Tim 6" },
+      ];
+      let currentMatches = [];
 
-        window.dominoApp = {
-            getTeams: () => currentTeams,
-            setTeams: (t) => { currentTeams = t; saveDataToCloud(); },
-            getMatches: () => currentMatches,
-            setMatches: (m) => { currentMatches = m; saveDataToCloud(); },
-            syncStatusChange: (status, colorClass) => {
-                const el = document.getElementById('sync-status');
-                if (el) {
-                    el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass}"></span> ${status}`;
-                }
-            }
-        };
+      window.dominoApp = {
+        getTeams: () => currentTeams,
+        setTeams: (t) => {
+          currentTeams = t;
+          saveDataToCloud();
+        },
+        getMatches: () => currentMatches,
+        setMatches: (m) => {
+          currentMatches = m;
+          saveDataToCloud();
+        },
+        syncStatusChange: (status, colorClass) => {
+          const el = document.getElementById("sync-status");
+          if (el) {
+            el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass}"></span> ${status}`;
+          }
+        },
+      };
 
-        async function initFirebase() {
-            if (!firebaseConfig) {
-                window.dominoApp.syncStatusChange("Mode Lokal", "bg-amber-400");
-                loadFromLocalStorage();
-                renderAll();
-                return;
-            }
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'domino_league_state');
-                onSnapshot(docRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.teams) currentTeams = data.teams;
-                        if (data.matches) currentMatches = data.matches;
-                        window.dominoApp.syncStatusChange("Sinkronisasi Real-Time Aktif", "bg-emerald-400");
-                    } else {
-                        saveDataToCloud();
-                    }
-                    renderAll();
-                }, (error) => {
-                    console.error("Firestore sync error:", error);
-                    window.dominoApp.syncStatusChange("Gagal Sinkronisasi", "bg-rose-500");
-                    loadFromLocalStorage();
-                    renderAll();
-                });
-            } catch (err) {
-                console.error("Firebase init failed:", err);
-                window.dominoApp.syncStatusChange("Mode Lokal", "bg-amber-400");
-                loadFromLocalStorage();
-                renderAll();
-            }
+      async function initFirebase() {
+        if (!firebaseConfig) {
+          window.dominoApp.syncStatusChange("Mode Lokal", "bg-amber-400");
+          loadFromLocalStorage();
+          renderAll();
+          return;
         }
+        try {
+          const app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          auth = getAuth(app);
 
-        async function saveDataToCloud() {
-            localStorage.setItem('domino_teams_rt', JSON.stringify(currentTeams));
-            localStorage.setItem('domino_matches_rt', JSON.stringify(currentMatches));
-            if (!db) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'domino_league_state');
-                await setDoc(docRef, {
-                    teams: currentTeams,
-                    matches: currentMatches,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-            } catch (e) {
-                console.error("Error saving data to cloud:", e);
-            }
+          if (initialAuthToken) {
+            await signInWithCustomToken(auth, initialAuthToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          const docRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "domino_league_state",
+          );
+          onSnapshot(
+            docRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.teams) currentTeams = data.teams;
+                if (data.matches) currentMatches = data.matches;
+                window.dominoApp.syncStatusChange(
+                  "Sinkronisasi Real-Time Aktif",
+                  "bg-emerald-400",
+                );
+              } else {
+                saveDataToCloud();
+              }
+              renderAll();
+            },
+            (error) => {
+              console.error("Firestore sync error:", error);
+              window.dominoApp.syncStatusChange(
+                "Gagal Sinkronisasi",
+                "bg-rose-500",
+              );
+              loadFromLocalStorage();
+              renderAll();
+            },
+          );
+        } catch (err) {
+          console.error("Firebase init failed:", err);
+          window.dominoApp.syncStatusChange("Mode Lokal", "bg-amber-400");
+          loadFromLocalStorage();
+          renderAll();
         }
+      }
 
-        function loadFromLocalStorage() {
-            const savedTeams = localStorage.getItem('domino_teams_rt');
-            const savedMatches = localStorage.getItem('domino_matches_rt');
-            if (savedTeams) currentTeams = JSON.parse(savedTeams);
-            if (savedMatches) currentMatches = JSON.parse(savedMatches);
+      async function saveDataToCloud() {
+        localStorage.setItem("domino_teams_rt", JSON.stringify(currentTeams));
+        localStorage.setItem(
+          "domino_matches_rt",
+          JSON.stringify(currentMatches),
+        );
+        if (!db) return;
+        try {
+          const docRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "domino_league_state",
+          );
+          await setDoc(
+            docRef,
+            {
+              teams: currentTeams,
+              matches: currentMatches,
+              updatedAt: new Date().toISOString(),
+            },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error("Error saving data to cloud:", e);
         }
+      }
 
-        window.onload = function() {
-            initFirebase();
-            checkAdminStatus();
-        };
+      function loadFromLocalStorage() {
+        const savedTeams = localStorage.getItem("domino_teams_rt");
+        const savedMatches = localStorage.getItem("domino_matches_rt");
+        if (savedTeams) currentTeams = JSON.parse(savedTeams);
+        if (savedMatches) currentMatches = JSON.parse(savedMatches);
+      }
+
+      window.onload = function () {
+        initFirebase();
+        checkAdminStatus();
+      };
     </script>
 
     <!-- Application UI Logic Script -->
     <script>
-        let isAdmin = false;
-        const ADMIN_PIN = "1234"; // PIN default admin (bisa diubah sesuai keinginan)
+      let isAdmin = false;
+      const ADMIN_PIN = "1234";
 
-        function showModal(title, desc, customButtonHTML = null) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerText = desc;
-            const actionContainer = document.getElementById('modal-action-container');
-            if (customButtonHTML) {
-                actionContainer.innerHTML = customButtonHTML;
-            } else {
-                actionContainer.innerHTML = `<button onclick="closeModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition">Mengerti</button>`;
-            }
-            document.getElementById('custom-modal').classList.remove('hidden');
+      function showModal(title, desc, customButtonHTML = null) {
+        document.getElementById("modal-title").innerText = title;
+        document.getElementById("modal-desc").innerText = desc;
+        const actionContainer = document.getElementById(
+          "modal-action-container",
+        );
+        if (customButtonHTML) {
+          actionContainer.innerHTML = customButtonHTML;
+        } else {
+          actionContainer.innerHTML = `<button onclick="closeModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition">Mengerti</button>`;
         }
+        document.getElementById("custom-modal").classList.remove("hidden");
+      }
 
-        function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
+      function closeModal() {
+        document.getElementById("custom-modal").classList.add("hidden");
+      }
+
+      function switchTab(tabId) {
+        if (tabId === "teams" && !isAdmin) {
+          showModal(
+            "Akses Dibatasi",
+            "Menu pengaturan tim khusus untuk Admin.",
+          );
+          return;
         }
+        ["standings", "matrix", "matches", "teams"].forEach((id) => {
+          document.getElementById(`tab-${id}`).classList.add("hidden");
+          const btn = document.getElementById(`btn-${id}`);
+          btn.classList.remove("border-amber-400", "text-amber-400");
+          btn.classList.add("border-transparent", "text-slate-400");
+        });
+        document.getElementById(`tab-${tabId}`).classList.remove("hidden");
+        const activeBtn = document.getElementById(`btn-${tabId}`);
+        activeBtn.classList.remove("border-transparent", "text-slate-400");
+        activeBtn.classList.add("border-amber-400", "text-amber-400");
+        renderAll();
+      }
 
-        function switchTab(tabId) {
-            if (tabId === 'teams' && !isAdmin) {
-                showModal('Akses Dibatasi', 'Menu pengaturan tim khusus untuk Admin.');
-                return;
-            }
-            ['standings', 'matches', 'teams'].forEach(id => {
-                document.getElementById(`tab-${id}`).classList.add('hidden');
-                const btn = document.getElementById(`btn-${id}`);
-                btn.classList.remove('border-amber-400', 'text-amber-400');
-                btn.classList.add('border-transparent', 'text-slate-400');
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.classList.remove('border-transparent', 'text-slate-400');
-            activeBtn.classList.add('border-amber-400', 'text-amber-400');
-            renderAll();
+      function handleAuthAction() {
+        if (isAdmin) {
+          if (confirm("Keluar dari Mode Admin?")) {
+            localStorage.removeItem("domino_is_admin");
+            isAdmin = false;
+            checkAdminStatus();
+            switchTab("standings");
+            showModal("Mode Publik", "Anda telah keluar dari mode admin.");
+          }
+        } else {
+          showPinPrompt();
         }
+      }
 
-        function handleAuthAction() {
-            if (isAdmin) {
-                if (confirm('Keluar dari Mode Admin?')) {
-                    localStorage.removeItem('domino_is_admin');
-                    isAdmin = false;
-                    checkAdminStatus();
-                    switchTab('standings');
-                    showModal('Mode Publik', 'Anda telah keluar dari mode admin.');
-                }
-            } else {
-                showPinPrompt();
-            }
-        }
-
-        function showPinPrompt() {
-            const html = `
+      function showPinPrompt() {
+        const html = `
                 <div class="space-y-2">
                     <input type="password" id="admin-pin-input" placeholder="Masukkan PIN Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-center text-amber-400 font-bold tracking-widest focus:outline-none">
                     <button onclick="verifyPin()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition">Masuk Admin</button>
                 </div>
             `;
-            showModal('Login Admin', 'Masukkan PIN rahasia untuk mengelola skor:', html);
+        showModal(
+          "Login Admin",
+          "Masukkan PIN rahasia untuk mengelola skor:",
+          html,
+        );
+      }
+
+      function verifyPin() {
+        const input = document.getElementById("admin-pin-input").value;
+        if (input === ADMIN_PIN) {
+          isAdmin = true;
+          localStorage.setItem("domino_is_admin", "true");
+          checkAdminStatus();
+          closeModal();
+          showModal(
+            "Berhasil Login",
+            "Mode Admin aktif! Anda sekarang bisa menambah dan mengedit pertandingan.",
+          );
+        } else {
+          alert("PIN Salah!");
+        }
+      }
+
+      function checkAdminStatus() {
+        const savedAdmin = localStorage.getItem("domino_is_admin");
+        if (savedAdmin === "true") {
+          isAdmin = true;
         }
 
-        function verifyPin() {
-            const input = document.getElementById('admin-pin-input').value;
-            if (input === ADMIN_PIN) {
-                isAdmin = true;
-                localStorage.setItem('domino_is_admin', 'true');
-                checkAdminStatus();
-                closeModal();
-                showModal('Berhasil Login', 'Mode Admin aktif! Anda sekarang bisa menambah dan mengedit pertandingan.');
-            } else {
-                alert('PIN Salah!');
-            }
+        const badge = document.getElementById("role-badge");
+        const authBtn = document.getElementById("auth-btn");
+        const adminMatchForm = document.getElementById("admin-match-form");
+        const hiddenAdminElements = document.querySelectorAll(".hidden-admin");
+
+        if (isAdmin) {
+          badge.innerText = "ADMIN";
+          badge.className =
+            "text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider";
+          authBtn.innerText = "🔓 Keluar Admin";
+          authBtn.className =
+            "text-xs bg-red-600/20 hover:bg-red-600/30 text-rose-300 border border-red-600/40 px-2.5 py-1.5 rounded-lg transition font-medium shadow";
+          if (adminMatchForm) adminMatchForm.classList.remove("hidden");
+          hiddenAdminElements.forEach((el) => el.classList.remove("hidden"));
+        } else {
+          badge.innerText = "Publik";
+          badge.className =
+            "text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider";
+          authBtn.innerText = "🔑 Login Admin";
+          authBtn.className =
+            "text-xs bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 px-2.5 py-1.5 rounded-lg transition font-medium shadow";
+          if (adminMatchForm) adminMatchForm.classList.add("hidden");
+          hiddenAdminElements.forEach((el) => el.classList.add("hidden"));
         }
+        renderAll();
+      }
 
-        function checkAdminStatus() {
-            const savedAdmin = localStorage.getItem('domino_is_admin');
-            if (savedAdmin === 'true') {
-                isAdmin = true;
-            }
-            
-            const badge = document.getElementById('role-badge');
-            const authBtn = document.getElementById('auth-btn');
-            const adminMatchForm = document.getElementById('admin-match-form');
-            const hiddenAdminElements = document.querySelectorAll('.hidden-admin');
+      function calculateStandings() {
+        const teams = window.dominoApp.getTeams();
+        const matches = window.dominoApp.getMatches();
+        let stats = teams.map((t) => ({
+          id: t.id,
+          name: t.name,
+          played: 0,
+          won: 0,
+          drawn: 0,
+          lost: 0,
+          apolo: 0,
+          points: 0,
+        }));
+        matches.forEach((m) => {
+          let hScore = parseInt(m.homeScore);
+          let aScore = parseInt(m.awayScore);
+          let hAp = parseInt(m.homeApolo) || 0;
+          let aAp = parseInt(m.awayApolo) || 0;
+          let hTeam = stats.find((t) => t.id === m.homeId);
+          let aTeam = stats.find((t) => t.id === m.awayId);
+          if (!hTeam || !aTeam || isNaN(hScore) || isNaN(aScore)) return;
+          hTeam.played += 1;
+          aTeam.played += 1;
+          hTeam.apolo += hAp;
+          aTeam.apolo += aAp;
+          if (hScore > aScore) {
+            hTeam.won += 1;
+            aTeam.lost += 1;
+            hTeam.points += 2;
+          } else if (aScore > hScore) {
+            aTeam.won += 1;
+            hTeam.lost += 1;
+            aTeam.points += 2;
+          } else {
+            hTeam.drawn += 1;
+            aTeam.drawn += 1;
+            hTeam.points += 1;
+            aTeam.points += 1;
+          }
+          hTeam.points += hAp;
+          aTeam.points += aAp;
+        });
+        stats.sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          if (b.apolo !== a.apolo) return b.apolo - a.apolo;
+          return b.won - a.won;
+        });
+        return stats;
+      }
 
-            if (isAdmin) {
-                badge.innerText = "ADMIN";
-                badge.className = "text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider";
-                authBtn.innerText = "🔓 Keluar Admin";
-                authBtn.className = "text-xs bg-red-600/20 hover:bg-red-600/30 text-rose-300 border border-red-600/40 px-2.5 py-1.5 rounded-lg transition font-medium shadow";
-                if (adminMatchForm) adminMatchForm.classList.remove('hidden');
-                hiddenAdminElements.forEach(el => el.classList.remove('hidden'));
-            } else {
-                badge.innerText = "Publik";
-                badge.className = "text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider";
-                authBtn.innerText = "🔑 Login Admin";
-                authBtn.className = "text-xs bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 px-2.5 py-1.5 rounded-lg transition font-medium shadow";
-                if (adminMatchForm) adminMatchForm.classList.add('hidden');
-                hiddenAdminElements.forEach(el => el.classList.add('hidden'));
-            }
-            renderAll();
+      function renderStandings() {
+        const stats = calculateStandings();
+        const tbody = document.getElementById("standings-body");
+        tbody.innerHTML = "";
+        if (stats.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">Belum ada tim terdaftar.</td></tr>`;
+          return;
         }
-
-        function calculateStandings() {
-            const teams = window.dominoApp.getTeams();
-            const matches = window.dominoApp.getMatches();
-            let stats = teams.map(t => ({
-                id: t.id,
-                name: t.name,
-                played: 0,
-                won: 0,
-                drawn: 0,
-                lost: 0,
-                apolo: 0,
-                points: 0
-            }));
-            matches.forEach(m => {
-                let hScore = parseInt(m.homeScore);
-                let aScore = parseInt(m.awayScore);
-                let hAp = parseInt(m.homeApolo) || 0;
-                let aAp = parseInt(m.awayApolo) || 0;
-                let hTeam = stats.find(t => t.id === m.homeId);
-                let aTeam = stats.find(t => t.id === m.awayId);
-                if (!hTeam || !aTeam || isNaN(hScore) || isNaN(aScore)) return;
-                hTeam.played += 1;
-                aTeam.played += 1;
-                hTeam.apolo += hAp;
-                aTeam.apolo += aAp;
-                if (hScore > aScore) {
-                    hTeam.won += 1;
-                    aTeam.lost += 1;
-                    hTeam.points += 2; 
-                } else if (aScore > hScore) {
-                    aTeam.won += 1;
-                    hTeam.lost += 1;
-                    aTeam.points += 2; 
-                } else {
-                    hTeam.drawn += 1;
-                    aTeam.drawn += 1;
-                    hTeam.points += 1; 
-                    aTeam.points += 1; 
-                }
-                hTeam.points += hAp;
-                aTeam.points += aAp;
-            });
-            stats.sort((a, b) => {
-                if (b.points !== a.points) return b.points - a.points;
-                if (b.apolo !== a.apolo) return b.apolo - a.apolo;
-                return b.won - a.won;
-            });
-            return stats;
-        }
-
-        function renderStandings() {
-            const stats = calculateStandings();
-            const tbody = document.getElementById('standings-body');
-            tbody.innerHTML = '';
-            if (stats.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">Belum ada tim terdaftar.</td></tr>`;
-                return;
-            }
-            stats.forEach((st, index) => {
-                let row = document.createElement('tr');
-                row.className = 'border-b border-slate-700/50 hover:bg-slate-700/20 transition';
-                row.innerHTML = `
+        stats.forEach((st, index) => {
+          let row = document.createElement("tr");
+          row.className =
+            "border-b border-slate-700/50 hover:bg-slate-700/20 transition";
+          row.innerHTML = `
                     <td class="py-3 px-1 text-center font-bold text-slate-400">${index + 1}</td>
                     <td class="py-3 px-2 font-medium text-slate-200 truncate max-w-[110px]">${st.name}</td>
                     <td class="py-3 px-1 text-center">${st.played}</td>
@@ -457,38 +721,117 @@
                     <td class="py-3 px-1 text-center text-amber-400 font-semibold">${st.apolo}</td>
                     <td class="py-3 px-2 text-center font-bold text-amber-400 bg-amber-400/5">${st.points}</td>
                 `;
-                tbody.appendChild(row);
-            });
+          tbody.appendChild(row);
+        });
+      }
+
+      function renderMatrixTab() {
+        const teams = window.dominoApp.getTeams();
+        const matches = window.dominoApp.getMatches();
+        const table = document.getElementById("matrix-table");
+        table.innerHTML = "";
+
+        if (teams.length === 0) {
+          table.innerHTML = `<tr><td class="text-center py-4 text-slate-500">Belum ada tim.</td></tr>`;
+          return;
         }
 
-        function renderMatchesTab() {
-            const teams = window.dominoApp.getTeams();
-            const matches = window.dominoApp.getMatches();
-            const homeSelect = document.getElementById('new-home-team');
-            const awaySelect = document.getElementById('new-away-team');
-            
-            if (homeSelect && awaySelect) {
-                let optionsHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-                homeSelect.innerHTML = optionsHTML;
-                awaySelect.innerHTML = optionsHTML;
-                if (teams.length > 1 && awaySelect.options.length > 1) awaySelect.selectedIndex = 1;
-            }
+        // Header Row
+        let headerTr = document.createElement("tr");
+        headerTr.className =
+          "border-b border-slate-700 text-amber-400 font-semibold";
+        let thFirst = document.createElement("th");
+        thFirst.className = "p-1.5 text-left";
+        thFirst.innerText = "Tim \\ vs";
+        headerTr.appendChild(thFirst);
 
-            const container = document.getElementById('matches-list-container');
-            container.innerHTML = '';
-            if (matches.length === 0) {
-                container.innerHTML = `<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center text-xs text-slate-400">Belum ada pertandingan tercatat.</div>`;
-                return;
-            }
-            matches.forEach((m, index) => {
-                const homeTeam = teams.find(t => t.id === m.homeId)?.name || 'Tim Dihapus';
-                const awayTeam = teams.find(t => t.id === m.awayId)?.name || 'Tim Dihapus';
-                let card = document.createElement('div');
-                card.className = 'bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-md space-y-3';
-                
-                let deleteBtnHTML = isAdmin ? `<button onclick="deleteMatch(${m.id})" class="text-rose-400 hover:text-rose-300 font-semibold">Hapus</button>` : '';
+        teams.forEach((t) => {
+          let th = document.createElement("th");
+          th.className = "p-1.5 truncate max-w-[60px]";
+          th.innerText = t.name;
+          headerTr.appendChild(th);
+        });
+        table.appendChild(headerTr);
 
-                card.innerHTML = `
+        // Body Rows
+        teams.forEach((rowTeam) => {
+          let tr = document.createElement("tr");
+          tr.className = "border-b border-slate-700/40";
+
+          let tdName = document.createElement("td");
+          tdName.className =
+            "p-1.5 text-left font-semibold text-slate-300 truncate max-w-[80px]";
+          tdName.innerText = rowTeam.name;
+          tr.appendChild(tdName);
+
+          teams.forEach((colTeam) => {
+            let td = document.createElement("td");
+            td.className = "p-1.5 border border-slate-700/30 text-slate-400";
+
+            if (rowTeam.id === colTeam.id) {
+              td.innerText = "-";
+              td.className += " bg-slate-900/40 text-slate-600 font-bold";
+            } else {
+              // Cari match antara rowTeam (home) dan colTeam (away) atau sebaliknya
+              let match = matches.find(
+                (m) =>
+                  (m.homeId === rowTeam.id && m.awayId === colTeam.id) ||
+                  (m.homeId === colTeam.id && m.awayId === rowTeam.id),
+              );
+
+              if (match) {
+                if (match.homeId === rowTeam.id) {
+                  td.innerText = `${match.homeScore}-${match.awayScore}`;
+                } else {
+                  td.innerText = `${match.awayScore}-${match.homeScore}`;
+                }
+                td.className += " font-bold text-amber-300 bg-amber-500/10";
+              } else {
+                td.innerText = "·";
+              }
+            }
+            tr.appendChild(td);
+          });
+          table.appendChild(tr);
+        });
+      }
+
+      function renderMatchesTab() {
+        const teams = window.dominoApp.getTeams();
+        const matches = window.dominoApp.getMatches();
+        const homeSelect = document.getElementById("new-home-team");
+        const awaySelect = document.getElementById("new-away-team");
+
+        if (homeSelect && awaySelect) {
+          let optionsHTML = teams
+            .map((t) => `<option value="${t.id}">${t.name}</option>`)
+            .join("");
+          homeSelect.innerHTML = optionsHTML;
+          awaySelect.innerHTML = optionsHTML;
+          if (teams.length > 1 && awaySelect.options.length > 1)
+            awaySelect.selectedIndex = 1;
+        }
+
+        const container = document.getElementById("matches-list-container");
+        container.innerHTML = "";
+        if (matches.length === 0) {
+          container.innerHTML = `<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center text-xs text-slate-400">Belum ada pertandingan tercatat.</div>`;
+          return;
+        }
+        matches.forEach((m, index) => {
+          const homeTeam =
+            teams.find((t) => t.id === m.homeId)?.name || "Tim Dihapus";
+          const awayTeam =
+            teams.find((t) => t.id === m.awayId)?.name || "Tim Dihapus";
+          let card = document.createElement("div");
+          card.className =
+            "bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-md space-y-3";
+
+          let deleteBtnHTML = isAdmin
+            ? `<button onclick="deleteMatch(${m.id})" class="text-rose-400 hover:text-rose-300 font-semibold">Hapus</button>`
+            : "";
+
+          card.innerHTML = `
                     <div class="flex justify-between items-center text-xs text-slate-400 font-medium pb-1 border-b border-slate-700/50">
                         <span>Partai #${index + 1}</span>
                         ${deleteBtnHTML}
@@ -513,136 +856,166 @@
                         </div>
                     </div>
                 `;
-                container.appendChild(card);
-            });
-        }
+          container.appendChild(card);
+        });
+      }
 
-        function renderTeamsInputs() {
-            const teams = window.dominoApp.getTeams();
-            const container = document.getElementById('teams-inputs');
-            if (!container) return;
-            container.innerHTML = '';
-            teams.forEach((t, index) => {
-                let div = document.createElement('div');
-                div.className = 'flex items-center space-x-2';
-                div.innerHTML = `
+      function renderTeamsInputs() {
+        const teams = window.dominoApp.getTeams();
+        const container = document.getElementById("teams-inputs");
+        if (!container) return;
+        container.innerHTML = "";
+        teams.forEach((t, index) => {
+          let div = document.createElement("div");
+          div.className = "flex items-center space-x-2";
+          div.innerHTML = `
                     <span class="text-xs text-slate-400 w-12 font-medium">Tim ${index + 1}</span>
                     <input type="text" id="team-name-${t.id}" value="${t.name}" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-amber-400">
                     <button onclick="removeTeam(${t.id})" class="text-xs bg-red-600/25 hover:bg-red-600/40 text-rose-400 px-3 py-2 rounded-xl transition font-medium">Hapus</button>
                 `;
-                container.appendChild(div);
+          container.appendChild(div);
+        });
+      }
+
+      function renderAll() {
+        renderStandings();
+        renderMatrixTab();
+        renderMatchesTab();
+        if (isAdmin) renderTeamsInputs();
+      }
+
+      function addNewMatch() {
+        if (!isAdmin) return;
+        const homeId = parseInt(document.getElementById("new-home-team").value);
+        const awayId = parseInt(document.getElementById("new-away-team").value);
+        const hScore = document.getElementById("new-home-score").value;
+        const aScore = document.getElementById("new-away-score").value;
+        const hAp = document.getElementById("new-home-apolo").value;
+        const aAp = document.getElementById("new-away-apolo").value;
+
+        if (homeId === awayId) {
+          showModal(
+            "Peringatan",
+            "Tim tuan rumah dan tim tamu tidak boleh sama!",
+          );
+          return;
+        }
+        if (hScore === "" || aScore === "") {
+          showModal(
+            "Peringatan",
+            "Mohon masukkan skor pertandingan dengan lengkap!",
+          );
+          return;
+        }
+
+        const newMatch = {
+          id: Date.now(),
+          homeId: homeId,
+          awayId: awayId,
+          homeScore: parseInt(hScore),
+          awayScore: parseInt(aScore),
+          homeApolo: hAp === "" ? 0 : parseInt(hAp),
+          awayApolo: aAp === "" ? 0 : parseInt(aAp),
+        };
+
+        let matches = window.dominoApp.getMatches();
+        matches.push(newMatch);
+        window.dominoApp.setMatches(matches);
+
+        document.getElementById("new-home-score").value = "";
+        document.getElementById("new-away-score").value = "";
+        document.getElementById("new-home-apolo").value = "0";
+        document.getElementById("new-away-apolo").value = "0";
+        showModal(
+          "Berhasil",
+          "Pertandingan berhasil disimpan dan langsung tersinkronisasi secara real-time!",
+        );
+      }
+
+      function deleteMatch(matchId) {
+        if (!isAdmin) return;
+        if (confirm("Yakin ingin menghapus pertandingan ini?")) {
+          let matches = window.dominoApp.getMatches();
+          matches = matches.filter((m) => m.id !== matchId);
+          window.dominoApp.setMatches(matches);
+        }
+      }
+
+      function addTeam() {
+        if (!isAdmin) return;
+        let teams = window.dominoApp.getTeams();
+        const newId =
+          teams.length > 0 ? Math.max(...teams.map((t) => t.id)) + 1 : 1;
+        teams.push({ id: newId, name: `Tim ${teams.length + 1}` });
+        window.dominoApp.setTeams(teams);
+        renderTeamsInputs();
+      }
+
+      function removeTeam(teamId) {
+        if (!isAdmin) return;
+        let teams = window.dominoApp.getTeams();
+        if (teams.length <= 2) {
+          showModal("Peringatan", "Jumlah tim minimal harus 2.");
+          return;
+        }
+        teams = teams.filter((t) => t.id !== teamId);
+        window.dominoApp.setTeams(teams);
+        renderTeamsInputs();
+      }
+
+      function saveTeamNames() {
+        if (!isAdmin) return;
+        let teams = window.dominoApp.getTeams();
+        teams.forEach((t) => {
+          const input = document.getElementById(`team-name-${t.id}`);
+          if (input && input.value.trim() !== "") {
+            t.name = input.value.trim();
+          }
+        });
+        window.dominoApp.setTeams(teams);
+        showModal(
+          "Berhasil",
+          "Nama tim berhasil diperbarui dan disimpan secara online.",
+        );
+        switchTab("standings");
+      }
+
+      function resetDataButton() {
+        if (!isAdmin) return;
+        if (
+          confirm(
+            "PERHATIAN: Apakah Anda yakin ingin mereset seluruh data tim dan pertandingan ke awal?",
+          )
+        ) {
+          localStorage.clear();
+          location.reload();
+        }
+      }
+
+      function shareLink() {
+        const url = window.location.href;
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(url)
+            .then(() => {
+              showModal(
+                "Tautan Disalin!",
+                "Bagikan link aplikasi ini kepada peserta liga. Mereka bisa memantau klasemen & bagan secara real-time!",
+              );
+            })
+            .catch(() => {
+              showModal(
+                "Bagikan Tautan",
+                "Salin URL halaman ini dari browser Anda dan bagikan ke peserta.",
+              );
             });
+        } else {
+          showModal(
+            "Bagikan Tautan",
+            "Salin URL halaman ini dari browser Anda dan bagikan ke peserta.",
+          );
         }
-
-        function renderAll() {
-            renderStandings();
-            renderMatchesTab();
-            if (isAdmin) renderTeamsInputs();
-        }
-
-        function addNewMatch() {
-            if (!isAdmin) return;
-            const homeId = parseInt(document.getElementById('new-home-team').value);
-            const awayId = parseInt(document.getElementById('new-away-team').value);
-            const hScore = document.getElementById('new-home-score').value;
-            const aScore = document.getElementById('new-away-score').value;
-            const hAp = document.getElementById('new-home-apolo').value;
-            const aAp = document.getElementById('new-away-apolo').value;
-
-            if (homeId === awayId) {
-                showModal('Peringatan', 'Tim tuan rumah dan tim tamu tidak boleh sama!');
-                return;
-            }
-            if (hScore === '' || aScore === '') {
-                showModal('Peringatan', 'Mohon masukkan skor pertandingan dengan lengkap!');
-                return;
-            }
-
-            const newMatch = {
-                id: Date.now(),
-                homeId: homeId,
-                awayId: awayId,
-                homeScore: parseInt(hScore),
-                awayScore: parseInt(aScore),
-                homeApolo: hAp === '' ? 0 : parseInt(hAp),
-                awayApolo: aAp === '' ? 0 : parseInt(aAp)
-            };
-
-            let matches = window.dominoApp.getMatches();
-            matches.push(newMatch);
-            window.dominoApp.setMatches(matches);
-
-            document.getElementById('new-home-score').value = '';
-            document.getElementById('new-away-score').value = '';
-            document.getElementById('new-home-apolo').value = '0';
-            document.getElementById('new-away-apolo').value = '0';
-            showModal('Berhasil', 'Pertandingan berhasil disimpan dan langsung tersinkronisasi secara real-time!');
-        }
-
-        function deleteMatch(matchId) {
-            if (!isAdmin) return;
-            if (confirm('Yakin ingin menghapus pertandingan ini?')) {
-                let matches = window.dominoApp.getMatches();
-                matches = matches.filter(m => m.id !== matchId);
-                window.dominoApp.setMatches(matches);
-            }
-        }
-
-        function addTeam() {
-            if (!isAdmin) return;
-            let teams = window.dominoApp.getTeams();
-            const newId = teams.length > 0 ? Math.max(...teams.map(t => t.id)) + 1 : 1;
-            teams.push({ id: newId, name: `Tim ${teams.length + 1}` });
-            window.dominoApp.setTeams(teams);
-            renderTeamsInputs();
-        }
-
-        function removeTeam(teamId) {
-            if (!isAdmin) return;
-            let teams = window.dominoApp.getTeams();
-            if (teams.length <= 2) {
-                showModal('Peringatan', 'Jumlah tim minimal harus 2.');
-                return;
-            }
-            teams = teams.filter(t => t.id !== teamId);
-            window.dominoApp.setTeams(teams);
-            renderTeamsInputs();
-        }
-
-        function saveTeamNames() {
-            if (!isAdmin) return;
-            let teams = window.dominoApp.getTeams();
-            teams.forEach(t => {
-                const input = document.getElementById(`team-name-${t.id}`);
-                if (input && input.value.trim() !== '') {
-                    t.name = input.value.trim();
-                }
-            });
-            window.dominoApp.setTeams(teams);
-            showModal('Berhasil', 'Nama tim berhasil diperbarui dan disimpan secara online.');
-            switchTab('standings');
-        }
-
-        function resetDataButton() {
-            if (!isAdmin) return;
-            if (confirm('PERHATIAN: Apakah Anda yakin ingin mereset seluruh data tim dan pertandingan ke awal?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function shareLink() {
-            const url = window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    showModal('Tautan Disalin!', 'Bagikan link aplikasi ini kepada peserta liga. Mereka bisa memantau klasemen secara real-time!');
-                }).catch(() => {
-                    showModal('Bagikan Tautan', 'Salin URL halaman ini dari browser Anda dan bagikan ke peserta.');
-                });
-            } else {
-                showModal('Bagikan Tautan', 'Salin URL halaman ini dari browser Anda dan bagikan ke peserta.');
-            }
-        }
+      }
     </script>
-</body>
+  </body>
 </html>
